@@ -14,13 +14,16 @@ class StaffStatsOverview extends BaseWidget
 {
     protected function getStats(): array
     {
-
+        // cast as User
         $user = Auth::user();
+        // $user = User::find(Auth::id());
+
 
         return [
             Stat::make('Pending Holidays', $this->getPendingHolidays($user)),
             Stat::make('Approved Holidays', $this->getApprovedHolidays($user)),
-            Stat::make('Total Work', $this->getTotalWork($user)),
+            Stat::make('Total Work Of Week', $this->getTotalTimeSheets($user, 'work')),
+            Stat::make('Total Pause Of Week', $this->getTotalTimeSheets($user, 'pause')),
         ];
     }
 
@@ -38,21 +41,43 @@ class StaffStatsOverview extends BaseWidget
             ->count();
     }
 
-    protected function getTotalWork(User $user)
+    protected function getTotalTimeSheets(User $user, string $type = 'work')
     {
         $timesheets = Timesheet::query()->where([
             'user_id' => $user->id,
-            'type' => 'work',
-        ])->get();
+            'type' => $type,
+        ])
+            ->where(
+                fn($query) => $query
+                    ->where('day_in', '>=', Carbon::today()->startOfWeek())
+                    ->where('day_out', '<=', Carbon::now()->endOfWeek())
+            )->get();
 
         $time_diffs = $timesheets->map(function ($timesheet) {
-            return Carbon::parse($timesheet->day_in)->diffInMinutes(Carbon::parse($timesheet->day_out));
+            return [
+                'hours' => Carbon::parse($timesheet->day_in)->diffInHours($timesheet->day_out),
+                'minutes' => Carbon::parse($timesheet->day_in)->diffInMinutes($timesheet->day_out) % 60,
+                'seconds' => Carbon::parse($timesheet->day_in)->diffInSeconds($timesheet->day_out) % 60,
+            ];
         });
 
-        $total_hours = round($time_diffs->sum() / 60, 2);
+        $total_hours = $time_diffs->reduce(function ($carry, $time_diff) {
+            return $carry + $time_diff['hours'];
+        });
 
+        $total_minutes = $time_diffs->reduce(function ($carry, $time_diff) {
+            return $carry + $time_diff['minutes'];
+        });
 
+        $total_seconds = $time_diffs->reduce(function ($carry, $time_diff) {
+            return $carry + $time_diff['seconds'];
+        });
 
-        return "{$total_hours} hours";
+        $total_hours += floor($total_minutes / 60);
+        $total_minutes += floor($total_seconds / 60);
+        $total_seconds = $total_seconds % 60;
+
+        return sprintf('%02d:%02d:%02d', $total_hours, $total_minutes, $total_seconds);
+
     }
 }

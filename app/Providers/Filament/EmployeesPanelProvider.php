@@ -27,6 +27,7 @@ class EmployeesPanelProvider extends PanelProvider
             ->path('staff')
             ->login()
             ->default()
+            ->profile()
             ->colors([
                 'primary' => Color::Pink
             ])
@@ -48,6 +49,7 @@ class EmployeesPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
             ->authMiddleware([
                 Authenticate::class,
             ]);
