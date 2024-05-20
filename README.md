@@ -1,4 +1,4 @@
-# Filament PHP Course 
+# Filament PHP Course
 
 ## Introduction
 
@@ -31,6 +31,8 @@ php artisan migrate
 ```bash
 php artisan db:seed
 ```
+
+[NOTE] Before seeding the database, unzip the `database/data/countries-states-cities.zip` file, in order to seed the database with a bunch of countries, states, and cities.
 
 6. Serve the application
 
