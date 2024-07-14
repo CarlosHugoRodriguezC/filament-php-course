@@ -5,6 +5,8 @@ namespace App\Providers\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\NavigationItem;
+use Filament\Navigation\UserMenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -52,6 +54,25 @@ class EmployeesPanelProvider extends PanelProvider
             ->databaseNotifications()
             ->authMiddleware([
                 Authenticate::class,
+            ])
+            ->plugins([
+                \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
+            ])
+            ->navigationItems([
+                NavigationItem::make('Cahuroca')
+                    ->url('https://carlos-rodriguez.pages.dev/')
+                    ->openUrlInNewTab()
+                    ->icon('heroicon-o-globe-alt')
+                    ->sort(0),
+            ])
+            ->userMenuItems([
+                UserMenuItem::make()
+                    ->label('Admin panel')
+                    ->url('/admin')
+                    ->icon('heroicon-o-user-circle')
+                    ->sort(0)
+                    ->visible(fn(): bool => auth()->user()?->hasAnyRole(['super_admin']) ?? false),
             ]);
+        ;
     }
 }

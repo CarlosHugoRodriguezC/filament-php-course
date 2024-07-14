@@ -5,6 +5,8 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\TimesheetResource\Pages;
 use App\Filament\Resources\TimesheetResource\RelationManagers;
 use App\Models\Timesheet;
+use EightyNine\ExcelImport\ExcelImportAction;
+use Filament\Actions;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -12,9 +14,13 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
+use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
+use pxlrbt\FilamentExcel\Exports\ExcelExport;
 
 class TimesheetResource extends Resource
 {
+
     protected static ?string $model = Timesheet::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
@@ -93,6 +99,18 @@ class TimesheetResource extends Resource
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    ExportBulkAction::make()
+                        ->exports([
+                            ExcelExport::make('table')
+                                ->fromTable()
+                                ->askForWriterType()
+                                ->askForFilename(),
+                            ExcelExport::make('form')
+                                ->fromForm()
+                                ->askForWriterType()
+                                ->askForFilename()
+                            ,
+                        ]),
                 ]),
             ]);
     }

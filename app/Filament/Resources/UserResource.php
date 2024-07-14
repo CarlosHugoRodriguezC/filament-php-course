@@ -91,8 +91,22 @@ class UserResource extends Resource
                                 ->minLength(5)
                                 ->maxLength(5)
                                 ->required(),
+
                         ]
-                    )
+                    ),
+                Forms\Components\Section::make('Access')
+                    ->columns(3)
+                    ->schema(
+                        [
+                            Forms\Components\MultiSelect::make('roles')
+                                ->relationship('roles', 'name')
+                                ->multiple()
+                                ->searchable()
+                                ->preload()
+                                ->required()
+                                ->columnSpanFull(),
+                        ]
+                    ),
 
             ]);
     }

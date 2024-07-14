@@ -19,6 +19,16 @@ class TimesheetResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-table-cells';
 
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'create',
+            'update',
+            'delete',
+        ];
+    }
+
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()

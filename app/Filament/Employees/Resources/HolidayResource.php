@@ -19,6 +19,13 @@ class HolidayResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
 
+    public static ?string $navigationBadgeTooltip = 'Pending holidays';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return static::getModel()::where('type', 'pending')->count();
+    }
+
 
     public static function getEloquentQuery(): Builder
     {
